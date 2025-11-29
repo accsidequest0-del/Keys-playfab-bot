@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayFab Auth Bot</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+
+        header {
+            background: #f76920;
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #ddd;
+        }
+
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #f76920;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 18px;
+            margin: 12px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #ffe1d0;
+        }
+
+        .section {
+            padding: 50px 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .command-box {
+            background: #262626;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 5px solid #f76920;
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            background: #111;
+            color: #bbb;
+            margin-top: 40px;
+        }
+
+        .credit {
+            color: #f76920;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <!-- Online hosted bot logo -->
+    <img class="logo" src="https://i.imgur.com/6X7GkYR.png" alt="Bot Logo">
+    <h1>PlayFab Auth Bot</h1>
+    <h2>Secure • Fast • Verified</h2>
+
+    <a href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot&permissions=8" class="btn" target="_blank">Invite Bot</a>
+    <a href="#commands" class="btn">Commands</a>
+</header>
+
+<div class="section">
+    <h2>🔐 About the Bot</h2>
+    <p>
+        PlayFab Auth Bot is a modern authentication assistant designed to help developers verify players, check access,
+        and integrate secure PlayFab interactions into Discord.  
+        Built for speed, simplicity, and reliability.
+    </p>
+
+    <p class="credit">Made by Key</p>
+</div>
+
+<div class="section" id="commands">
+    <h2>🛠️ Commands</h2>
+
+    <div class="command-box">
+        <strong>/auth &lt;player_id&gt;</strong><br>
+        Authenticate a player quickly and securely.
+    </div>
+
+    <div class="command-box">
+        <strong>/checkplayer &lt;user&gt;</strong><br>
+        View basic player information.
+    </div>
+
+    <div class="command-box">
+        <strong>/verify</strong><br>
+        Simple verification command.
+    </div>
+
+    <div class="command-box">
+        <strong>/unban &lt;player_id&gt;</strong><br>
+        Remove bans from authorized players.
+    </div>
+
+    <div class="command-box">
+        <strong>/help</strong><br>
+        View all bot functions.
+    </div>
+</div>
+
+<footer>
+    © 2025 PlayFab Auth Bot • Built by <span class="credit">Key</span>
+</footer>
+
+</body>
+</html>
