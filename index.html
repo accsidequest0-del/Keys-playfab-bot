@@ -1,141 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayFab Auth Bot</title>
+from flask import Flask, request, jsonify, Response, redirect
+import requests
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #1a1a1a;
-            color: white;
-        }
+app = Flask(__name__)
 
-        header {
-            background: #f76920;
-            padding: 40px 20px;
-            text-align: center;
-            color: white;
-        }
+# Base URL to avoid "variable undefined" errors
+TARGET_BASE_URL = "https://shinytag.vercel.app/api/PlayFabAuthentication"
 
-        .logo {
-            width: 120px;
-            margin-bottom: 15px;
-        }
+@app.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
+def proxy(path):
+    # Use silent=True so it returns None instead of crashing on non-JSON body
+    rjson = request.get_json(silent=True) or {}
+    
+    print(f"Incoming Request Path: {path}")
+    print(f"Body before modification: {rjson}")
 
-        h1 {
-            font-size: 42px;
-            margin: 0;
-            letter-spacing: 1px;
-        }
+    # 1. Clean up Header Forwarding
+    headers_to_forward = {
+        h: request.headers[h] 
+        for h in ["X-EntityToken", "X-SecretKey", "X-Authorization", "Content-Type"] 
+        if h in request.headers
+    }
 
-        h2 {
-            margin-top: 0;
-            color: #ddd;
-        }
+    # 2. Simplified Logic
+    # Since all your original elifs checked for "F8D36", we combine them.
+    if rjson.get("AppId") == "35BD3":
+        rjson["OculusId"] = "9546522298716565"
+        rjson["CustomId"] = "OCULUS9546522298716565"
 
-        .btn {
-            display: inline-block;
-            background: white;
-            color: #f76920;
-            padding: 12px 30px;
-            border-radius: 6px;
-            font-size: 18px;
-            margin: 12px;
-            text-decoration: none;
-            transition: 0.2s;
-        }
+    # 3. Execute Proxy Request
+    try:
+        req = requests.request(
+            method=request.method,
+            url=TARGET_BASE_URL,
+            headers=headers_to_forward,
+            json=rjson,
+            params=request.args,
+            allow_redirects=False,
+            timeout=10 # Good practice to add a timeout
+        )
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Proxy request failed", "message": str(e)}), 502
 
-        .btn:hover {
-            background: #ffe1d0;
-        }
+    # 4. Handle Redirects
+    if req.status_code in [301, 302]:
+        return redirect(req.headers.get("Location", ""), code=req.status_code)
 
-        .section {
-            padding: 50px 20px;
-            max-width: 900px;
-            margin: auto;
-        }
+    # 5. Build Response
+    try:
+        # Try to return the JSON response from the target
+        response_data = req.json()
+        print("Target Response JSON:", response_data)
+        return jsonify(response_data), req.status_code
+    except ValueError:
+        # Fallback for non-JSON responses (HTML, text, etc)
+        return Response(req.content, status=req.status_code, headers=dict(req.headers))
 
-        .command-box {
-            background: #262626;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border-left: 5px solid #f76920;
-        }
-
-        footer {
-            padding: 20px;
-            text-align: center;
-            background: #111;
-            color: #bbb;
-            margin-top: 40px;
-        }
-
-        .credit {
-            color: #f76920;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <!-- Online hosted bot logo -->
-    <img class="logo" src="https://i.imgur.com/6X7GkYR.png" alt="Bot Logo">
-    <h1>PlayFab Auth Bot</h1>
-    <h2>Secure • Fast • Verified</h2>
-
-    <!-- Fixed Invite Link -->
-    <a href="https://discord.com/oauth2/authorize?client_id=1444129360989655212&scope=bot&permissions=8" class="btn" target="_blank">Invite Bot</a>
-    <a href="#commands" class="btn">Commands</a>
-</header>
-
-<div class="section">
-    <h2>🔐 About the Bot</h2>
-    <p>
-        PlayFab Auth Bot is a modern authentication assistant designed to help developers verify players, check access,
-        and integrate secure PlayFab interactions into Discord.  
-        Built for speed, simplicity, and reliability.
-    </p>
-
-    <p class="credit">Made by Key</p>
-</div>
-
-<div class="section" id="commands">
-    <h2>🛠️ Commands</h2>
-
-    <div class="command-box">
-        <strong>/auth &lt;player_id&gt;</strong><br>
-        Authenticate a player quickly and securely.
-    </div>
-
-    <div class="command-box">
-        <strong>/checkplayer &lt;user&gt;</strong><br>
-        View basic player information.
-    </div>
-
-    <div class="command-box">
-        <strong>/verify</strong><br>
-        Simple verification command.
-    </div>
-
-    <div class="command-box">
-        <strong>/unban &lt;player_id&gt;</strong><br>
-        Remove bans from authorized players.
-    </div>
-
-    <div class="command-box">
-        <strong>/help</strong><br>
-        View all bot functions.
-    </div>
-</div>
-
-<footer>
-    © 2025 PlayFab Auth Bot • Built by <span class="credit">Key</span>
-</footer>
-
-</body>
-</html>
+if __name__ == '__main__':
+    # Using threaded=True allows multiple requests to be handled at once
+    app.run(host='0.0.0.0', port=5008, debug=True, threaded=True)
